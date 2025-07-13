@@ -2,11 +2,10 @@ fastapi
 uvicorn[standard]
 sqlalchemy
 pymysql
-cryptography>=45.0.0
 alembic
 pydantic
 python-multipart
-python-jose[cryptography]
+python-jose
 passlib[bcrypt]
 python-decouple
 fastapi-pagination
