@@ -1,11 +1,7 @@
 [build]
-builder = "nixpacks"
+builder = "NIXPACKS"
 
 [deploy]
 healthcheckPath = "/health"
 healthcheckTimeout = 300
-restartPolicyType = "always"
-
-[env]
-PYTHONPATH = "/app"
-RAILWAY_ENVIRONMENT = "production" 
+restartPolicyType = "always" 
