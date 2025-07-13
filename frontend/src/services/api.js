@@ -2,12 +2,15 @@ import React from 'react';
 import { useAuth } from '@clerk/clerk-react';
 
 // Backend API base URL - updated to use environment variable
+console.log('🔧 Environment VITE_API_URL:', import.meta.env.VITE_API_URL);
 const API_BASE_URL = import.meta.env.VITE_API_URL || 'https://stackit-production.up.railway.app/api';
+console.log('🔧 Final API_BASE_URL:', API_BASE_URL);
 
 // API service class for backend communication
 class ApiService {
   constructor() {
     this.baseURL = API_BASE_URL;
+    console.log('🔧 API Service initialized with baseURL:', this.baseURL);
     this.getToken = null; // Will be set by the hook
   }
 
@@ -98,6 +101,7 @@ class ApiService {
 
   // POST request
   async post(endpoint, data) {
+    console.log('🚀 POST URL being used:', this.baseURL + endpoint);
     return this.request(endpoint, {
       method: 'POST',
       body: JSON.stringify(data),
