@@ -1,6 +1,5 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.middleware.httpsredirect import HTTPSRedirectMiddleware
 import os
 
 from app.database.config import engine
@@ -21,10 +20,6 @@ app = FastAPI(
 
 # Get environment variable for frontend URL
 FRONTEND_URL = os.getenv("FRONTEND_URL", "http://localhost:5173")
-
-# Add HTTPS redirect middleware for production
-if os.getenv("PORT") == "8080":  # Railway production port
-    app.add_middleware(HTTPSRedirectMiddleware)
 
 # Add CORS middleware
 app.add_middleware(
