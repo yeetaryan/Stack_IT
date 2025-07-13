@@ -137,7 +137,7 @@ export const AppProvider = ({ children }) => {
       setLoading(prev => ({ ...prev, questions: true }));
       
       const newAnswer = await apiService.createAnswer(questionId, {
-        body: answerBody,
+        content: answerBody,
       });
 
       setQuestions(prev => prev.map(q => 
