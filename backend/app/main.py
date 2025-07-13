@@ -1,5 +1,6 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+import os
 
 from app.database.config import engine
 from app.models.models import Base
@@ -17,6 +18,9 @@ app = FastAPI(
     redoc_url="/redoc"
 )
 
+# Get environment variable for frontend URL
+FRONTEND_URL = os.getenv("FRONTEND_URL", "http://localhost:5173")
+
 # Add CORS middleware
 app.add_middleware(
     CORSMiddleware,
@@ -26,7 +30,10 @@ app.add_middleware(
         "http://localhost:5173",
         "http://127.0.0.1:5173",
         "http://localhost:4173",
-        "http://127.0.0.1:4173"
+        "http://127.0.0.1:4173",
+        FRONTEND_URL,  # Production frontend URL
+        "https://*.vercel.app",  # Allow Vercel deployments
+        "https://*.netlify.app",  # Allow Netlify deployments
     ],
     allow_credentials=True,
     allow_methods=["*"],

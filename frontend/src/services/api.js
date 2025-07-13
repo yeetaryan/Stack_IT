@@ -1,8 +1,8 @@
 import React from 'react';
 import { useAuth } from '@clerk/clerk-react';
 
-// Backend API base URL
-const API_BASE_URL = 'http://localhost:8000/api';
+// Backend API base URL - updated to use environment variable
+const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000';
 
 // API service class for backend communication
 class ApiService {
