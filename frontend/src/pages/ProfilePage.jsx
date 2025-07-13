@@ -1,4 +1,4 @@
-import React, { useMemo } from 'react';
+import React, { useMemo, useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { useApp } from '../context/AppContext';
 import {
@@ -9,7 +9,29 @@ import {
 } from '@heroicons/react/24/outline';
 
 export default function ProfilePage() {
-  const { currentUser, questions } = useApp();
+  const { currentUser, questions, getUserAnswers } = useApp();
+  const [userAnswers, setUserAnswers] = useState([]);
+  const [loading, setLoading] = useState(true);
+  
+  // Load user answers when component mounts
+  useEffect(() => {
+    const loadUserAnswers = async () => {
+      if (currentUser) {
+        try {
+          setLoading(true);
+          const answers = await getUserAnswers(currentUser.id);
+          setUserAnswers(answers || []);
+        } catch (error) {
+          console.error('Failed to load user answers:', error);
+          setUserAnswers([]);
+        } finally {
+          setLoading(false);
+        }
+      }
+    };
+
+    loadUserAnswers();
+  }, [currentUser, getUserAnswers]);
   
   if (!currentUser) {
     return (
@@ -35,9 +57,6 @@ export default function ProfilePage() {
       );
     });
   }, [questions, currentUser]);
-
-  // For now, we'll use an empty array for answers since we don't have answer data loaded
-  const userAnswers = [];
 
   return (
     <div className="max-w-4xl mx-auto">
@@ -144,33 +163,43 @@ export default function ProfilePage() {
       {/* Answers */}
       <div>
         <h2 className="text-xl font-semibold text-gray-900 mb-4">Your Answers</h2>
-        {userAnswers.length > 0 ? (
+        {loading ? (
+          <div className="text-center py-8">
+            <div className="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-gray-900"></div>
+            <p className="mt-2 text-sm text-gray-500">Loading your answers...</p>
+          </div>
+        ) : userAnswers.length > 0 ? (
           <div className="space-y-4">
-            {userAnswers.map((answer) => (
-              <div key={answer.id} className="bg-white shadow-sm ring-1 ring-gray-900/5 rounded-lg p-4">
-                <div className="flex items-start justify-between">
-                  <div className="flex-1">
-                    <h3 className="font-medium text-gray-900">
-                      <Link to={`/question/${answer.questionId}`} className="hover:underline">
-                        {answer.questionTitle}
-                      </Link>
-                    </h3>
-                    <p className="mt-1 text-sm text-gray-600 line-clamp-2">
-                      {answer.body ? answer.body.substring(0, 150) + '...' : ''}
-                    </p>
-                    <div className="mt-2 flex items-center gap-4 text-sm text-gray-500">
-                      <span>{answer.votes} votes</span>
-                      {answer.isAccepted && (
-                        <span className="text-green-600 font-medium">✓ Accepted</span>
-                      )}
-                      <time dateTime={answer.createdAt}>
-                        {new Date(answer.createdAt).toLocaleDateString()}
-                      </time>
+            {userAnswers.map((answer) => {
+              // Find the question for this answer
+              const question = questions.find(q => q.id === answer.question_id);
+              
+              return (
+                <div key={answer.id} className="bg-white shadow-sm ring-1 ring-gray-900/5 rounded-lg p-4">
+                  <div className="flex items-start justify-between">
+                    <div className="flex-1">
+                      <h3 className="font-medium text-gray-900">
+                        <Link to={`/question/${answer.question_id}`} className="hover:underline">
+                          {question?.title || 'Question'}
+                        </Link>
+                      </h3>
+                      <p className="mt-1 text-sm text-gray-600 line-clamp-2">
+                        {answer.content ? answer.content.substring(0, 150) + '...' : ''}
+                      </p>
+                      <div className="mt-2 flex items-center gap-4 text-sm text-gray-500">
+                        <span>{answer.vote_count || 0} votes</span>
+                        {answer.is_accepted && (
+                          <span className="text-green-600 font-medium">✓ Accepted</span>
+                        )}
+                        <time dateTime={answer.created_at}>
+                          {new Date(answer.created_at).toLocaleDateString()}
+                        </time>
+                      </div>
                     </div>
                   </div>
                 </div>
-              </div>
-            ))}
+              );
+            })}
           </div>
         ) : (
           <div className="text-center py-8 text-gray-500">
