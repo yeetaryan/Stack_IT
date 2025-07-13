@@ -32,6 +32,7 @@ app.add_middleware(
         "http://localhost:4173",
         "http://127.0.0.1:4173",
         FRONTEND_URL,  # Production frontend URL
+        "https://stack-it-steel.vercel.app",  # Specific frontend URL
         "https://*.vercel.app",  # Allow Vercel deployments
         "https://*.netlify.app",  # Allow Netlify deployments
     ],
