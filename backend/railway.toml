@@ -8,4 +8,8 @@ restartPolicyType = "always"
 
 [env]
 PYTHONPATH = "/app"
-PORT = "8000" 
+PORT = "8080"
+
+[experimental]
+# Force HTTPS
+httpsUpgrade = true 
