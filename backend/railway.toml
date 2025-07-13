@@ -8,4 +8,4 @@ restartPolicyType = "always"
 
 [env]
 PYTHONPATH = "/app"
-PORT = "8000" 
+RAILWAY_ENVIRONMENT = "production" 

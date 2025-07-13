@@ -1,5 +1,6 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.middleware.trustedhost import TrustedHostMiddleware
 import os
 
 from app.database.config import engine
@@ -16,6 +17,12 @@ app = FastAPI(
     version="1.0.0",
     docs_url="/docs",
     redoc_url="/redoc"
+)
+
+# Add trusted host middleware for Railway
+app.add_middleware(
+    TrustedHostMiddleware, 
+    allowed_hosts=["*"]  # Railway handles SSL termination
 )
 
 # Get environment variable for frontend URL
