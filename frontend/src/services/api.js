@@ -215,7 +215,7 @@ class ApiService {
 
   // Get current user's answers
   async getMyAnswers() {
-    return this.get('/answers/me/answers');
+    return this.get('/answers/me');
   }
 
   // === VOTES ===

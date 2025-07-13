@@ -32,6 +32,22 @@ def get_question_answers(question_id: str, db: Session = Depends(get_db)):
     answer_service = AnswerService(db)
     return answer_service.get_answers_by_question(question_id)
 
+@router.get("/me", response_model=List[AnswerResponse])
+def get_my_answers(
+    db: Session = Depends(get_db),
+    current_user: Dict[str, Any] = Depends(require_auth)
+):
+    """Get all answers by the current user"""
+    user_id = current_user['local_user'].id
+    answer_service = AnswerService(db)
+    return answer_service.get_user_answers(user_id, skip=0, limit=100)
+
+@router.get("/user/{user_id}", response_model=List[AnswerResponse])
+def get_user_answers(user_id: str, db: Session = Depends(get_db)):
+    """Get all answers by a specific user"""
+    answer_service = AnswerService(db)
+    return answer_service.get_user_answers(user_id, skip=0, limit=100)
+
 @router.put("/{answer_id}", response_model=AnswerResponse)
 def update_answer(
     answer_id: str, 
