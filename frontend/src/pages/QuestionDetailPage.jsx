@@ -10,6 +10,13 @@ import {
   CheckCircleIcon,
 } from '@heroicons/react/24/outline';
 import { BookmarkIcon as BookmarkSolidIcon } from '@heroicons/react/24/solid';
+import FroalaEditor from 'react-froala-wysiwyg';
+import 'froala-editor/js/froala_editor.pkgd.min.js';
+import 'froala-editor/js/plugins/image.min.js';
+import 'froala-editor/css/froala_editor.pkgd.min.css';
+import 'froala-editor/css/froala_style.min.css';
+import 'froala-editor/css/plugins.pkgd.min.css';
+import 'froala-editor/css/plugins/image.min.css';
 
 export default function QuestionDetailPage() {
   const { id } = useParams();
@@ -335,12 +342,27 @@ export default function QuestionDetailPage() {
         {isSignedIn ? (
           <form onSubmit={handleSubmitAnswer} className="space-y-4">
             <div>
-              <textarea
-                value={answerBody}
-                onChange={(e) => setAnswerBody(e.target.value)}
-                placeholder="Write your answer here..."
-                className="w-full h-32 p-3 border border-gray-300 rounded-md focus:ring-2 focus:ring-black focus:border-transparent"
-                required
+              <FroalaEditor
+                tag="textarea"
+                model={answerBody}
+                onModelChange={body => setAnswerBody(body)}
+                config={{
+                  placeholderText: "Write your answer here...",
+                  height: 250,
+                  imageUpload: true,
+                  imagePaste: true,
+                  imageDefaultWidth: 0,
+                  imageUploadMethod: 'POST',
+                  imageUploadParam: 'file',
+                  imageUploadURL: null, // base64 upload (for demo)
+                  imageInsertButtons: ['imageBack', '|', 'imageUpload', 'imageByURL'],
+                  toolbarButtons: {
+                    moreText: { buttons: ['bold', 'italic', 'underline', 'strikeThrough'] },
+                    moreParagraph: { buttons: ['alignLeft', 'alignCenter', 'alignRight', 'alignJustify', 'formatOL', 'formatUL'] },
+                    moreRich: { buttons: ['insertLink', 'insertImage', 'insertVideo'] },
+                    moreMisc: { buttons: ['undo', 'redo', 'fullscreen', 'html'] }
+                  }
+                }}
               />
             </div>
             <div className="flex justify-end">
