@@ -7,6 +7,13 @@ import {
   TagIcon,
   SparklesIcon 
 } from '@heroicons/react/24/outline';
+import FroalaEditor from 'react-froala-wysiwyg';
+import 'froala-editor/js/froala_editor.pkgd.min.js';
+import 'froala-editor/js/plugins/image.min.js';
+import 'froala-editor/css/froala_editor.pkgd.min.css';
+import 'froala-editor/css/froala_style.min.css';
+import 'froala-editor/css/plugins.pkgd.min.css';
+import 'froala-editor/css/plugins/image.min.css';
 
 export default function AskQuestionPage() {
   const navigate = useNavigate();
@@ -117,15 +124,27 @@ export default function AskQuestionPage() {
                   <p className="text-sm text-gray-500">Include all the information someone would need to answer your question</p>
                 </div>
               </div>
-              <textarea
-                name="body"
-                id="body"
-                required
-                rows={8}
-                value={formData.body}
-                onChange={handleChange}
-                className="w-full text-base px-4 py-4 border-2 border-gray-200 rounded-xl focus:border-black focus:ring-0 transition-colors placeholder:text-gray-400 resize-none"
-                placeholder="Describe your problem in detail. Include what you've tried, what you expected to happen, and what actually happened. Code examples are helpful!"
+              <FroalaEditor
+                tag="textarea"
+                model={formData.body}
+                onModelChange={body => setFormData(prev => ({ ...prev, body }))}
+                config={{
+                  placeholderText: "Describe your problem in detail...",
+                  height: 250,
+                  imageUpload: true,
+                  imagePaste: true,
+                  imageDefaultWidth: 0,
+                  imageUploadMethod: 'POST',
+                  imageUploadParam: 'file',
+                  imageUploadURL: null,
+                  imageInsertButtons: ['imageBack', '|', 'imageUpload', 'imageByURL'],
+                  toolbarButtons: {
+                    moreText: { buttons: ['bold', 'italic', 'underline', 'strikeThrough'] },
+                    moreParagraph: { buttons: ['alignLeft', 'alignCenter', 'alignRight', 'alignJustify', 'formatOL', 'formatUL'] },
+                    moreRich: { buttons: ['insertLink', 'insertImage', 'insertVideo'] },
+                    moreMisc: { buttons: ['undo', 'redo', 'fullscreen', 'html'] }
+                  }
+                }}
               />
             </div>
 
