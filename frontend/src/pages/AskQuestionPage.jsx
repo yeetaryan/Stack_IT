@@ -7,13 +7,7 @@ import {
   TagIcon,
   SparklesIcon 
 } from '@heroicons/react/24/outline';
-import FroalaEditor from 'react-froala-wysiwyg';
-import 'froala-editor/js/froala_editor.pkgd.min.js';
-import 'froala-editor/js/plugins/image.min.js';
-import 'froala-editor/css/froala_editor.pkgd.min.css';
-import 'froala-editor/css/froala_style.min.css';
-import 'froala-editor/css/plugins.pkgd.min.css';
-import 'froala-editor/css/plugins/image.min.css';
+import RichTextEditor from '../components/RichTextEditor';
 
 export default function AskQuestionPage() {
   const navigate = useNavigate();
@@ -74,7 +68,7 @@ export default function AskQuestionPage() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-gray-100">
-      <div className="max-w-2xl mx-auto px-4 py-12">
+      <div className="max-w-7xl mx-auto px-4 py-12">
         {/* Header Section */}
         <div className="text-center mb-12">
           <div className="inline-flex items-center justify-center w-16 h-16 bg-black rounded-2xl mb-6">
@@ -91,7 +85,7 @@ export default function AskQuestionPage() {
           <form onSubmit={handleSubmit} className="space-y-0">
             
             {/* Title Section */}
-            <div className="p-8 border-b border-gray-100">
+            <div className="p-10 border-b border-gray-100">
               <div className="flex items-center gap-3 mb-4">
                 <div className="w-10 h-10 bg-blue-50 rounded-xl flex items-center justify-center">
                   <QuestionMarkCircleIcon className="w-5 h-5 text-blue-600" />
@@ -113,8 +107,8 @@ export default function AskQuestionPage() {
               />
             </div>
 
-            {/* Body Section */}
-            <div className="p-8 border-b border-gray-100 bg-gray-50/30">
+            {/* Body Section - Wider */}
+            <div className="p-10 border-b border-gray-100 bg-gray-50/30">
               <div className="flex items-center gap-3 mb-4">
                 <div className="w-10 h-10 bg-green-50 rounded-xl flex items-center justify-center">
                   <DocumentTextIcon className="w-5 h-5 text-green-600" />
@@ -124,32 +118,18 @@ export default function AskQuestionPage() {
                   <p className="text-sm text-gray-500">Include all the information someone would need to answer your question</p>
                 </div>
               </div>
-              <FroalaEditor
-                tag="textarea"
-                model={formData.body}
-                onModelChange={body => setFormData(prev => ({ ...prev, body }))}
-                config={{
-                  placeholderText: "Describe your problem in detail...",
-                  height: 250,
-                  imageUpload: true,
-                  imagePaste: true,
-                  imageDefaultWidth: 0,
-                  imageUploadMethod: 'POST',
-                  imageUploadParam: 'file',
-                  imageUploadURL: null,
-                  imageInsertButtons: ['imageBack', '|', 'imageUpload', 'imageByURL'],
-                  toolbarButtons: {
-                    moreText: { buttons: ['bold', 'italic', 'underline', 'strikeThrough'] },
-                    moreParagraph: { buttons: ['alignLeft', 'alignCenter', 'alignRight', 'alignJustify', 'formatOL', 'formatUL'] },
-                    moreRich: { buttons: ['insertLink', 'insertImage', 'insertVideo'] },
-                    moreMisc: { buttons: ['undo', 'redo', 'fullscreen', 'html'] }
-                  }
-                }}
-              />
+              <div className="w-full">
+                <RichTextEditor
+                  value={formData.body}
+                  onChange={body => setFormData(prev => ({ ...prev, body }))}
+                  height="325px"
+                  className="w-full"
+                />
+              </div>
             </div>
 
             {/* Tags Section */}
-            <div className="p-8 border-b border-gray-100">
+            <div className="p-10 border-b border-gray-100">
               <div className="flex items-center gap-3 mb-4">
                 <div className="w-10 h-10 bg-purple-50 rounded-xl flex items-center justify-center">
                   <TagIcon className="w-5 h-5 text-purple-600" />
@@ -173,7 +153,7 @@ export default function AskQuestionPage() {
             </div>
 
             {/* Submit Section */}
-            <div className="p-8 bg-gray-50/50">
+            <div className="p-10 bg-gray-50/50">
               <div className="flex flex-col sm:flex-row gap-4 sm:justify-end">
                 <button
                   type="button"

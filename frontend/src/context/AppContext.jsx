@@ -349,6 +349,56 @@ export const AppProvider = ({ children }) => {
     }
   }, [apiService]);
 
+  const deleteQuestion = async (questionId) => {
+    if (!isSignedIn) {
+      throw new Error('You must be signed in to delete questions');
+    }
+
+    try {
+      setLoading(prev => ({ ...prev, questions: true }));
+      
+      await apiService.deleteQuestion(questionId);
+      
+      // Remove from local state
+      setQuestions(prev => prev.filter(q => q.id !== questionId));
+      setError(null);
+    } catch (error) {
+      console.error('Failed to delete question:', error);
+      const errorMessage = error.message || 'Failed to delete question. Please try again.';
+      setError(errorMessage);
+      throw new Error(errorMessage);
+    } finally {
+      setLoading(prev => ({ ...prev, questions: false }));
+    }
+  };
+
+  const deleteAnswer = async (answerId) => {
+    if (!isSignedIn) {
+      throw new Error('You must be signed in to delete answers');
+    }
+
+    try {
+      setLoading(prev => ({ ...prev, questions: true }));
+      
+      await apiService.deleteAnswer(answerId);
+      
+      // Remove answer from all questions that contain it
+      setQuestions(prev => prev.map(question => ({
+        ...question,
+        answers: question.answers ? question.answers.filter(a => a.id !== answerId) : []
+      })));
+      
+      setError(null);
+    } catch (error) {
+      console.error('Failed to delete answer:', error);
+      const errorMessage = error.message || 'Failed to delete answer. Please try again.';
+      setError(errorMessage);
+      throw new Error(errorMessage);
+    } finally {
+      setLoading(prev => ({ ...prev, questions: false }));
+    }
+  };
+
   const value = {
     // State
     questions,
@@ -378,6 +428,8 @@ export const AppProvider = ({ children }) => {
     searchQuestions,
     refreshData,
     getAllTags,
+    deleteQuestion,
+    deleteAnswer,
   };
 
   return (

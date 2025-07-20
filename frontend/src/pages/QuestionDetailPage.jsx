@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { useAuth, useUser, SignInButton, SignUpButton } from '@clerk/clerk-react';
+import { useAuth, SignInButton, SignUpButton } from '@clerk/clerk-react';
 import { useApp } from '../context/AppContext';
 import {
   ArrowUpIcon,
@@ -8,21 +8,15 @@ import {
   BookmarkIcon,
   ShareIcon,
   CheckCircleIcon,
+  TrashIcon,
 } from '@heroicons/react/24/outline';
 import { BookmarkIcon as BookmarkSolidIcon } from '@heroicons/react/24/solid';
-import FroalaEditor from 'react-froala-wysiwyg';
-import 'froala-editor/js/froala_editor.pkgd.min.js';
-import 'froala-editor/js/plugins/image.min.js';
-import 'froala-editor/css/froala_editor.pkgd.min.css';
-import 'froala-editor/css/froala_style.min.css';
-import 'froala-editor/css/plugins.pkgd.min.css';
-import 'froala-editor/css/plugins/image.min.css';
+import RichTextEditor from '../components/RichTextEditor';
 
 export default function QuestionDetailPage() {
   const { id } = useParams();
   const navigate = useNavigate();
-  const { isSignedIn, isLoaded } = useAuth();
-  const { user } = useUser();
+  const { isSignedIn } = useAuth();
   
   const { 
     getQuestionDetails,
@@ -30,9 +24,11 @@ export default function QuestionDetailPage() {
     voteQuestion, 
     voteAnswer, 
     addAnswer,
-    currentUser,
+    deleteQuestion,
+    deleteAnswer,
     savedQuestions,
-    toggleSaveQuestion
+    toggleSaveQuestion,
+    currentUser
   } = useApp();
   
   const [question, setQuestion] = useState(null);
@@ -42,6 +38,9 @@ export default function QuestionDetailPage() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [showAuthPrompt, setShowAuthPrompt] = useState(false);
   const [authAction, setAuthAction] = useState('');
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+  const [showDeleteAnswerConfirm, setShowDeleteAnswerConfirm] = useState(false);
+  const [answerToDelete, setAnswerToDelete] = useState(null);
   const viewsIncrementedRef = useRef(null);
 
   // Effect to load question data
@@ -120,7 +119,7 @@ export default function QuestionDetailPage() {
 
     setIsSubmitting(true);
     try {
-      const newAnswer = await addAnswer(id, answerBody);
+      await addAnswer(id, answerBody);
       setAnswerBody('');
       const updatedQuestion = await getQuestionDetails(id);
       setQuestion(updatedQuestion);
@@ -136,6 +135,43 @@ export default function QuestionDetailPage() {
     if (!handleAuthRequiredAction('save')) return;
     toggleSaveQuestion(question.id);
   };
+
+  const handleDeleteQuestion = async () => {
+    if (!handleAuthRequiredAction('delete')) return;
+    
+    try {
+      await deleteQuestion(id);
+      navigate('/app');
+    } catch (error) {
+      console.error('Error deleting question:', error);
+      alert('Failed to delete question. Please try again.');
+    }
+  };
+
+  const handleDeleteAnswer = async () => {
+    if (!handleAuthRequiredAction('delete')) return;
+    
+    try {
+      await deleteAnswer(answerToDelete.id);
+      setShowDeleteAnswerConfirm(false);
+      setAnswerToDelete(null);
+      
+      // Refresh the question to get updated data
+      const updatedQuestion = await getQuestionDetails(id);
+      setQuestion(updatedQuestion);
+    } catch (error) {
+      console.error('Error deleting answer:', error);
+      alert('Failed to delete answer. Please try again.');
+    }
+  };
+
+  const confirmDeleteAnswer = (answer) => {
+    setAnswerToDelete(answer);
+    setShowDeleteAnswerConfirm(true);
+  };
+
+  // Check if current user is the question author
+  const isQuestionAuthor = currentUser?.id === question?.author?.id;
 
   // Loading state
   if (loading) {
@@ -197,6 +233,61 @@ export default function QuestionDetailPage() {
         </div>
       )}
 
+      {/* Delete Confirmation Modal */}
+      {showDeleteConfirm && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white p-6 rounded-lg max-w-md w-full mx-4">
+            <h3 className="text-lg font-semibold mb-4">Delete Question</h3>
+            <p className="text-gray-600 mb-6">
+              Are you sure you want to delete this question? This action cannot be undone.
+            </p>
+            <div className="flex gap-4">
+              <button 
+                onClick={handleDeleteQuestion}
+                className="flex-1 px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700"
+              >
+                Delete
+              </button>
+              <button 
+                onClick={() => setShowDeleteConfirm(false)}
+                className="flex-1 px-4 py-2 border border-gray-300 text-gray-700 rounded hover:bg-gray-50"
+              >
+                Cancel
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Delete Answer Confirmation Modal */}
+      {showDeleteAnswerConfirm && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white p-6 rounded-lg max-w-md w-full mx-4">
+            <h3 className="text-lg font-semibold mb-4">Delete Answer</h3>
+            <p className="text-gray-600 mb-6">
+              Are you sure you want to delete this answer? This action cannot be undone.
+            </p>
+            <div className="flex gap-4">
+              <button 
+                onClick={handleDeleteAnswer}
+                className="flex-1 px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700"
+              >
+                Delete
+              </button>
+              <button 
+                onClick={() => {
+                  setShowDeleteAnswerConfirm(false);
+                  setAnswerToDelete(null);
+                }}
+                className="flex-1 px-4 py-2 border border-gray-300 text-gray-700 rounded hover:bg-gray-50"
+              >
+                Cancel
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Question */}
       <div className="bg-white shadow-sm ring-1 ring-gray-900/5 rounded-lg p-6 mb-6">
         <div className="flex gap-6">
@@ -228,13 +319,22 @@ export default function QuestionDetailPage() {
                 <BookmarkIcon className="h-6 w-6" />
               )}
             </button>
+            {isQuestionAuthor && (
+              <button
+                onClick={() => setShowDeleteConfirm(true)}
+                className="p-2 rounded-full hover:bg-red-100 text-red-600 hover:text-red-700 mt-2"
+                title="Delete question"
+              >
+                <TrashIcon className="h-6 w-6" />
+              </button>
+            )}
           </div>
 
           {/* Content */}
           <div className="flex-1">
             <h1 className="text-2xl font-bold text-gray-900 mb-4">{question.title}</h1>
             <div className="prose max-w-none text-gray-700 mb-6">
-              <p className="whitespace-pre-wrap">{question.content}</p>
+              <div dangerouslySetInnerHTML={{ __html: question.content }} />
             </div>
 
             {/* Tags */}
@@ -305,12 +405,21 @@ export default function QuestionDetailPage() {
                     {answer.is_accepted && (
                       <CheckCircleIcon className="h-6 w-6 text-green-600 mt-2" />
                     )}
+                    {currentUser?.id === answer.author?.id && (
+                      <button
+                        onClick={() => confirmDeleteAnswer(answer)}
+                        className="p-2 rounded-full hover:bg-red-100 text-red-600 hover:text-red-700 mt-2"
+                        title="Delete answer"
+                      >
+                        <TrashIcon className="h-5 w-5" />
+                      </button>
+                    )}
                   </div>
 
                   {/* Content */}
                   <div className="flex-1">
                     <div className="prose max-w-none text-gray-700 mb-4">
-                      <p className="whitespace-pre-wrap">{answer.content}</p>
+                      <div dangerouslySetInnerHTML={{ __html: answer.content }} />
                     </div>
                     <div className="flex items-center justify-end text-sm text-gray-500">
                       <div className="flex items-center gap-2">
@@ -342,27 +451,10 @@ export default function QuestionDetailPage() {
         {isSignedIn ? (
           <form onSubmit={handleSubmitAnswer} className="space-y-4">
             <div>
-              <FroalaEditor
-                tag="textarea"
-                model={answerBody}
-                onModelChange={body => setAnswerBody(body)}
-                config={{
-                  placeholderText: "Write your answer here...",
-                  height: 250,
-                  imageUpload: true,
-                  imagePaste: true,
-                  imageDefaultWidth: 0,
-                  imageUploadMethod: 'POST',
-                  imageUploadParam: 'file',
-                  imageUploadURL: null, // base64 upload (for demo)
-                  imageInsertButtons: ['imageBack', '|', 'imageUpload', 'imageByURL'],
-                  toolbarButtons: {
-                    moreText: { buttons: ['bold', 'italic', 'underline', 'strikeThrough'] },
-                    moreParagraph: { buttons: ['alignLeft', 'alignCenter', 'alignRight', 'alignJustify', 'formatOL', 'formatUL'] },
-                    moreRich: { buttons: ['insertLink', 'insertImage', 'insertVideo'] },
-                    moreMisc: { buttons: ['undo', 'redo', 'fullscreen', 'html'] }
-                  }
-                }}
+              <RichTextEditor
+                value={answerBody}
+                onChange={body => setAnswerBody(body)}
+                height="250px"
               />
             </div>
             <div className="flex justify-end">
