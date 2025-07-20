@@ -171,7 +171,16 @@ export default function QuestionDetailPage() {
   };
 
   // Check if current user is the question author
-  const isQuestionAuthor = currentUser?.id === question?.author?.id;
+  const isQuestionAuthor = currentUser?.id === question?.author?.clerk_id;
+  
+  // Debug logging
+  console.log('🔍 Delete Debug:', {
+    currentUserId: currentUser?.id,
+    questionAuthorId: question?.author?.id,
+    questionAuthorClerkId: question?.author?.clerk_id,
+    isQuestionAuthor,
+    questionAuthor: question?.author
+  });
 
   // Loading state
   if (loading) {
@@ -405,7 +414,7 @@ export default function QuestionDetailPage() {
                     {answer.is_accepted && (
                       <CheckCircleIcon className="h-6 w-6 text-green-600 mt-2" />
                     )}
-                    {currentUser?.id === answer.author?.id && (
+                    {currentUser?.id === answer.author?.clerk_id && (
                       <button
                         onClick={() => confirmDeleteAnswer(answer)}
                         className="p-2 rounded-full hover:bg-red-100 text-red-600 hover:text-red-700 mt-2"
