@@ -171,13 +171,19 @@ export default function QuestionDetailPage() {
   };
 
   // Check if current user is the question author
-  const isQuestionAuthor = currentUser?.id === question?.author?.clerk_id;
+  const isQuestionAuthor = currentUser && question?.author && (
+    currentUser.id === question.author.id ||
+    currentUser.id === question.author.clerk_id ||
+    currentUser.email === question.author.email
+  );
   
   // Debug logging
   console.log('🔍 Delete Debug:', {
     currentUserId: currentUser?.id,
+    currentUserEmail: currentUser?.email,
     questionAuthorId: question?.author?.id,
     questionAuthorClerkId: question?.author?.clerk_id,
+    questionAuthorEmail: question?.author?.email,
     isQuestionAuthor,
     questionAuthor: question?.author
   });

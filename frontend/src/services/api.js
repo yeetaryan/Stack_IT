@@ -166,6 +166,7 @@ class ApiService {
   }
 
   async deleteQuestion(questionId) {
+    console.log('🔥 API: Deleting question:', questionId);
     return this.delete(`/questions/${questionId}`);
   }
 

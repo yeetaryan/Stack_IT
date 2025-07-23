@@ -357,10 +357,12 @@ export const AppProvider = ({ children }) => {
     try {
       setLoading(prev => ({ ...prev, questions: true }));
       
+      console.log('🗑️ Attempting to delete question:', questionId);
       await apiService.deleteQuestion(questionId);
       
       // Remove from local state
       setQuestions(prev => prev.filter(q => q.id !== questionId));
+      console.log('✅ Question deleted successfully');
       setError(null);
     } catch (error) {
       console.error('Failed to delete question:', error);
